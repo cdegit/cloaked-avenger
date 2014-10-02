@@ -25,18 +25,24 @@ function love.draw()
 			r, g, b, a = imageData:getPixel(i, j)
 			
 
-			local tileHeight = 0;
+			local height = 0;
 
 			-- for now, just assume the image is greyscale
 			if blockTypes[r] == "ground" then
 				love.graphics.setColor(i + j, i + j, i + j, a)
 			elseif blockTypes[r] == "wall" then
-				tileHeight = 1 * TILE_HEIGHT;
-				love.graphics.setColor(255, 255, 255)
+				height = 2 * TILE_HEIGHT;
 			end
 
-			-- TODO: don't draw a single polygon; draw each face. this will let us apply textures or shading more easily later
-			love.graphics.polygon("fill", leftX, leftY - tileHeight, topX, topY - tileHeight, rightX, rightY - tileHeight, rightX, rightY, bottomX, bottomY, leftX, leftY)
+			-- draw each face as its own polygon, so we can add textures / shading more easily later
+			love.graphics.setColor(200, 200, 200)
+			love.graphics.polygon("fill", leftX, leftY, leftX, leftY - height, bottomX, bottomY - height, bottomX, bottomY) -- front face
+
+			love.graphics.setColor(175 + height, 175 + height, 175 + height)
+			love.graphics.polygon("fill", leftX, leftY - height, topX, topY - height, rightX, rightY - height, topX, topY - (height - TILE_HEIGHT)) -- top face
+
+			love.graphics.setColor(150, 150, 150)
+			love.graphics.polygon("fill", bottomX, bottomY - height, rightX, rightY - height, rightX, rightY, bottomX, bottomY) -- side face
 		end
 	end
 	love.graphics.pop()
