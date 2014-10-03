@@ -1,10 +1,7 @@
 require("tile")
+require("enemy")
 
 imageData = love.image.newImageData("map2.png")
-
--- value of pixel in map determines block type
--- use value as index to get block type
-tileTypes = {[0] = "floor", [255] = "wall"}
 
 tiles = {}
 enemies = {}
@@ -14,10 +11,20 @@ function love.load()
 	-- load image data into a 2d array of block objects
 	for i = 1, imageData:getWidth() - 1 do
 		tiles[i] = {}
+		enemies[i] = {}
+
 		for j = 1, imageData:getHeight() - 1 do 
+			-- we encode info in each channel
+			-- red contains enemy info: 0 for no enemies, anything else will be a type of enemy
+			-- green contains terrain info
+			-- blue contains item info
 			r, g, b, a = imageData:getPixel(i, j)
 
-			tiles[i][j] = Tile.create( tileTypes[r], 2 * TILE_HEIGHT )
+			tiles[i][j] = Tile.create( tileTypes[g], 2 * TILE_HEIGHT )
+
+			if r ~= 0 then
+				enemies[i][j] = Enemy.create( enemyTypes[r] )
+			end
 		end
 	end
 end
@@ -29,13 +36,15 @@ function love.draw()
 	for i = 1, table.getn(tiles) do
 		for j = 1, table.getn(tiles[i]) do 
 			local leftX, leftY = getLeft(i, j)
-			local topX, topY = getTop(i, j)
-			local rightX, rightY = getRight(i, j)
-			local bottomX, bottomY = getBottom(i, j)
 
-			tiles[i][j]:draw( leftX, leftY, topX, topY, rightX, rightY, bottomX, bottomY )
+			tiles[i][j]:draw( leftX, leftY )
+
+			if enemies[i][j] ~= nil then
+				enemies[i][j]:draw( leftX, leftY )
+			end
 		end
 	end
+
 	love.graphics.pop()
 end
 
